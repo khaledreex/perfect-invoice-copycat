@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
-import { Plus, Printer, Save, X } from "lucide-react";
+import { Printer, Save } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -32,15 +32,12 @@ const InvoiceForm: React.FC = () => {
   // Invoice Details
   const [invoiceNumber, setInvoiceNumber] = useState("38");
   const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(today);
-  const [paymentTerms, setPaymentTerms] = useState("");
   const [dueDate, setDueDate] = useState<Date | undefined>(undefined);
-  const [poNumber, setPoNumber] = useState("");
 
   // Client Details
   const [billTo, setBillTo] = useState(
     "KvK: 88481492\nBTW: NL864645958B01\nNaam: Sanbo Group BV\nAdres: Meerheide 105, 5521DX, Eersel, NL"
   );
-  const [shipTo, setShipTo] = useState("");
 
   // Invoice Items
   const [items, setItems] = useState<InvoiceItem[]>([
@@ -53,12 +50,9 @@ const InvoiceForm: React.FC = () => {
     },
   ]);
 
-  // Notes and Terms
-  const [notes, setNotes] = useState(
+  // Payment Details
+  const [paymentDetails, setPaymentDetails] = useState(
     "Bank Transfer Details:\nFEROZE SHAHEEN\nBE92 9676 4363 9523"
-  );
-  const [terms, setTerms] = useState(
-    "Terms and conditions - late fees, payment methods, delivery schedule"
   );
 
   // Calculations
@@ -143,33 +137,27 @@ const InvoiceForm: React.FC = () => {
       <div className="p-6 space-y-8">
         {/* Header Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div className="flex items-start space-x-4">
-            <div className="bg-purple-600 h-16 w-16 p-2 rounded-md">
-              <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
+          <div>
+            <div className="flex items-center mb-4">
+              <div className="bg-purple-600 h-16 w-16 p-2 rounded-md mr-4">
+                <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
+              </div>
+              <h2 className="text-2xl font-bold">Company Info</h2>
             </div>
-            <div>
-              <Input
-                value={companyName}
-                onChange={(e) => setCompanyName(e.target.value)}
-                className="font-bold text-lg border-none px-0 mb-1 focus-visible:ring-0"
-                placeholder="Your Company"
-              />
-              <Input
-                value={companyEmail}
-                onChange={(e) => setCompanyEmail(e.target.value)}
-                className="text-sm border-none px-0 mb-1 text-gray-600 focus-visible:ring-0"
-                placeholder="company@email.com"
-              />
-              <Input
-                value={companyWebsite}
-                onChange={(e) => setCompanyWebsite(e.target.value)}
-                className="text-sm border-none px-0 text-gray-600 focus-visible:ring-0"
-                placeholder="www.yourcompany.com"
-              />
-            </div>
+            <Textarea
+              value={`${companyName}\n${companyEmail}\n${companyWebsite}`}
+              onChange={(e) => {
+                const lines = e.target.value.split('\n');
+                if (lines.length >= 1) setCompanyName(lines[0]);
+                if (lines.length >= 2) setCompanyEmail(lines[1]);
+                if (lines.length >= 3) setCompanyWebsite(lines[2]);
+              }}
+              className="h-32 border-gray-300"
+              placeholder="Company name, email, website"
+            />
           </div>
 
-          <div className="text-right">
+          <div>
             <h2 className="text-2xl font-bold text-purple-800 mb-3">INVOICE</h2>
             <div className="flex items-center justify-end mb-2">
               <span className="mr-2 text-gray-500">Invoice #</span>
@@ -228,45 +216,13 @@ const InvoiceForm: React.FC = () => {
         </div>
 
         {/* Client Information */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+        <div className="pt-4 border-t border-gray-200">
           <div>
             <Label className="block text-sm font-medium text-gray-500 mb-2">Bill To</Label>
             <Textarea
               value={billTo}
               onChange={(e) => setBillTo(e.target.value)}
-              className="h-32 border-gray-300"
-            />
-          </div>
-          
-          <div>
-            <Label className="block text-sm font-medium text-gray-500 mb-2">Ship To (Optional)</Label>
-            <Textarea
-              value={shipTo}
-              onChange={(e) => setShipTo(e.target.value)}
-              className="h-32 border-gray-300"
-              placeholder="Shipping address (if different from billing)"
-            />
-          </div>
-        </div>
-
-        {/* Additional Details */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
-          <div>
-            <Label className="block text-sm font-medium text-gray-500 mb-2">Payment Terms</Label>
-            <Input
-              value={paymentTerms}
-              onChange={(e) => setPaymentTerms(e.target.value)}
-              className="border-gray-300"
-              placeholder="Net 30, Due on Receipt, etc."
-            />
-          </div>
-          <div>
-            <Label className="block text-sm font-medium text-gray-500 mb-2">PO Number</Label>
-            <Input
-              value={poNumber}
-              onChange={(e) => setPoNumber(e.target.value)}
-              className="border-gray-300"
-              placeholder="Purchase Order Number"
+              className="h-32 border-gray-300 w-full"
             />
           </div>
         </div>
@@ -327,7 +283,7 @@ const InvoiceForm: React.FC = () => {
                           onClick={() => handleRemoveItem(item.id)}
                           className="h-8 w-8 text-gray-400 hover:text-red-500"
                         >
-                          <X size={16} />
+                          X
                         </Button>
                       )}
                     </td>
@@ -343,31 +299,22 @@ const InvoiceForm: React.FC = () => {
                 size="sm"
                 className="text-purple-600 border-purple-200 hover:bg-purple-50"
               >
-                <Plus size={16} className="mr-1" /> Add Item
+                + Add Item
               </Button>
             </div>
           </CardContent>
         </Card>
 
-        {/* Totals and Notes */}
+        {/* Totals and Payment Details */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
           <div className="space-y-4">
             <div>
-              <Label className="block text-sm font-medium text-gray-500 mb-2">Notes</Label>
+              <Label className="block text-sm font-medium text-gray-500 mb-2">Payment Details</Label>
               <Textarea
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
+                value={paymentDetails}
+                onChange={(e) => setPaymentDetails(e.target.value)}
                 className="h-32 border-gray-300"
-                placeholder="Payment details, thank you message, etc."
-              />
-            </div>
-            <div>
-              <Label className="block text-sm font-medium text-gray-500 mb-2">Terms & Conditions</Label>
-              <Textarea
-                value={terms}
-                onChange={(e) => setTerms(e.target.value)}
-                className="h-20 border-gray-300"
-                placeholder="Standard terms and conditions"
+                placeholder="Bank account details, payment instructions, etc."
               />
             </div>
           </div>
