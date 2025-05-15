@@ -1,11 +1,11 @@
 
-import React, { useState } from "react";
+import React, { useState, useRef, ChangeEvent } from "react";
 import { useToast } from "../hooks/use-toast";
 import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format, addDays } from "date-fns";
-import { Calendar as CalendarIcon, Printer, Save } from "lucide-react";
+import { Calendar as CalendarIcon, Printer, Save, Image } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -22,6 +22,7 @@ interface InvoiceItem {
 const InvoiceForm: React.FC = () => {
   const { toast } = useToast();
   const today = new Date();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   
   // Company Info
   const [companyDetails, setCompanyDetails] = useState(
@@ -116,6 +117,25 @@ const InvoiceForm: React.FC = () => {
     setDueDate(addDays(currentDate, 7));
   };
 
+  const handleLogoUpload = (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setCompanyLogo(event.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const triggerFileInput = () => {
+    if (fileInputRef.current) {
+      fileInputRef.current.click();
+    }
+  };
+
   return (
     <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden print:shadow-none">
       <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-800 text-white print:bg-purple-600">
@@ -144,29 +164,57 @@ const InvoiceForm: React.FC = () => {
         {/* Header Section */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
-            <div className="flex items-center mb-2">
-              <div className="bg-purple-600 h-16 w-16 p-2 rounded-md mr-4">
-                <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
+            <div className="flex flex-col mb-2">
+              <Label className="block text-base font-medium text-gray-600 mb-2">Company Details</Label>
+              <div className="flex items-center mb-2">
+                <div 
+                  className="bg-gray-100 h-16 w-16 p-2 rounded-md mr-4 flex items-center justify-center cursor-pointer relative overflow-hidden"
+                  onClick={triggerFileInput}
+                >
+                  {companyLogo ? (
+                    <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
+                  ) : (
+                    <Image className="text-gray-400" />
+                  )}
+                  <input 
+                    type="file" 
+                    ref={fileInputRef}
+                    className="hidden" 
+                    accept="image/*" 
+                    onChange={handleLogoUpload} 
+                  />
+                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
+                    <Image className="text-white opacity-0 hover:opacity-100" size={20} />
+                  </div>
+                </div>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={triggerFileInput}
+                  className="text-xs"
+                >
+                  Change Logo
+                </Button>
               </div>
-              <Label className="block text-base font-medium text-gray-600">Company Details</Label>
+              <Textarea
+                value={companyDetails}
+                onChange={(e) => setCompanyDetails(e.target.value)}
+                className="h-32 border-gray-300 text-sm resize-none"
+                placeholder="Company name, email, website"
+              />
             </div>
-            <Textarea
-              value={companyDetails}
-              onChange={(e) => setCompanyDetails(e.target.value)}
-              className="h-32 border-gray-300 text-sm resize-none"
-              placeholder="Company name, email, website"
-            />
           </div>
 
           <div>
-            <h2 className="text-2xl font-bold text-purple-800 mb-3">INVOICE</h2>
-            <div className="flex items-center justify-end mb-2">
-              <span className="mr-2 text-gray-500">Invoice #</span>
+            <div className="flex flex-row items-baseline justify-end mb-3">
+              <h2 className="text-2xl font-bold text-purple-800 mr-2">INVOICE</h2>
               <Input
                 type="text"
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
                 className="w-24 text-right border-gray-300 text-sm"
+                placeholder="#"
               />
             </div>
 
@@ -229,7 +277,7 @@ const InvoiceForm: React.FC = () => {
         </div>
 
         {/* Client Information */}
-        <div className="pt-4 border-t border-gray-200">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
           <div>
             <Label className="block text-base font-medium text-gray-600 mb-2">Bill To</Label>
             <Textarea
