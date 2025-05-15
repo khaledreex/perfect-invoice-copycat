@@ -46,16 +46,17 @@
   }
 
   html, body {
-    @apply bg-black;
+    @apply bg-gray-100;
   }
-  
-  .invoice-container {
-    background-color: #1A1F24;
-    color: #FFFFFF;
-  }
-  
-  .invoice-input {
-    @apply bg-invoice-input text-white border border-invoice-border rounded px-3 py-2;
+
+  @media print {
+    html, body {
+      @apply bg-white;
+    }
+
+    .print-hide {
+      display: none;
+    }
   }
 }
 

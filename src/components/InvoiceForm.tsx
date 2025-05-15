@@ -5,7 +5,11 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
-import { Plus, Check } from "lucide-react";
+import { Plus, Printer, Save, X } from "lucide-react";
+import { Card, CardContent } from "./ui/card";
+import { Input } from "./ui/input";
+import { Textarea } from "./ui/textarea";
+import { Label } from "./ui/label";
 
 interface InvoiceItem {
   id: string;
@@ -58,15 +62,11 @@ const InvoiceForm: React.FC = () => {
   );
 
   // Calculations
-  const [taxPercentage, setTaxPercentage] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [shipping, setShipping] = useState(0);
   const [amountPaid, setAmountPaid] = useState(0);
 
   // Calculate totals
   const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
-  const taxAmount = (subtotal * taxPercentage) / 100;
-  const total = subtotal + taxAmount + shipping - discount;
+  const total = subtotal;
   const balanceDue = total - amountPaid;
 
   const handleAddItem = () => {
@@ -78,6 +78,10 @@ const InvoiceForm: React.FC = () => {
       amount: 0,
     };
     setItems([...items, newItem]);
+  };
+
+  const handleRemoveItem = (id: string) => {
+    setItems(items.filter(item => item.id !== id));
   };
 
   const handleItemChange = (id: string, field: keyof InvoiceItem, value: any) => {
@@ -105,90 +109,90 @@ const InvoiceForm: React.FC = () => {
     });
   };
 
+  const handleSave = () => {
+    toast({
+      title: "Invoice Saved",
+      description: "Your invoice has been saved!",
+    });
+  };
+
   return (
-    <div className="max-w-4xl mx-auto p-5 invoice-container print:shadow-none">
-      <div className="print:hidden mb-4">
-        <Button onClick={handlePrint} className="bg-invoice-accent hover:bg-blue-700">
-          Generate Invoice PDF
-        </Button>
+    <div className="max-w-4xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden print:shadow-none">
+      <div className="p-6 bg-gradient-to-r from-purple-600 to-indigo-800 text-white print:bg-purple-600">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <h1 className="text-3xl font-bold">Invoice Generator</h1>
+          <div className="flex space-x-2 mt-4 md:mt-0">
+            <Button 
+              onClick={handleSave}
+              variant="outline"
+              className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            >
+              <Save size={18} className="mr-2" /> Save
+            </Button>
+            <Button 
+              onClick={handlePrint}
+              variant="outline" 
+              className="bg-white hover:bg-gray-100 text-purple-700"
+            >
+              <Printer size={18} className="mr-2" /> Print
+            </Button>
+          </div>
+        </div>
       </div>
-      
-      <div className="invoice-content">
-        <div className="flex justify-between items-start mb-8">
-          <div className="logo-section">
-            <div className="bg-blue-600 h-[106px] w-[106px] p-4">
-              <img src={companyLogo} alt="Company Logo" className="w-full" />
+
+      <div className="p-6 space-y-8">
+        {/* Header Section */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="flex items-start space-x-4">
+            <div className="bg-purple-600 h-16 w-16 p-2 rounded-md">
+              <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
             </div>
-            <div className="mt-2">
-              <textarea
+            <div>
+              <Input
                 value={companyName}
                 onChange={(e) => setCompanyName(e.target.value)}
-                rows={1}
-                className="invoice-input w-full"
+                className="font-bold text-lg border-none px-0 mb-1 focus-visible:ring-0"
+                placeholder="Your Company"
               />
-              <textarea
+              <Input
                 value={companyEmail}
                 onChange={(e) => setCompanyEmail(e.target.value)}
-                rows={1}
-                className="invoice-input w-full mt-1"
+                className="text-sm border-none px-0 mb-1 text-gray-600 focus-visible:ring-0"
+                placeholder="company@email.com"
               />
-              <textarea
+              <Input
                 value={companyWebsite}
                 onChange={(e) => setCompanyWebsite(e.target.value)}
-                rows={1}
-                className="invoice-input w-full mt-1"
+                className="text-sm border-none px-0 text-gray-600 focus-visible:ring-0"
+                placeholder="www.yourcompany.com"
               />
             </div>
           </div>
-          
+
           <div className="text-right">
-            <h1 className="text-4xl font-bold mb-4">INVOICE</h1>
-            <div className="flex items-center justify-end">
-              <span className="mr-2">#</span>
-              <input
+            <h2 className="text-2xl font-bold text-purple-800 mb-3">INVOICE</h2>
+            <div className="flex items-center justify-end mb-2">
+              <span className="mr-2 text-gray-500">Invoice #</span>
+              <Input
                 type="text"
                 value={invoiceNumber}
                 onChange={(e) => setInvoiceNumber(e.target.value)}
-                className="invoice-input"
+                className="w-24 text-right border-gray-300"
               />
             </div>
-          </div>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-8 mb-8">
-          <div>
-            <div className="mb-4">
-              <label className="block text-invoice-muted mb-1">Bill To</label>
-              <textarea
-                value={billTo}
-                onChange={(e) => setBillTo(e.target.value)}
-                rows={6}
-                className="invoice-input w-full"
-              />
-            </div>
-          </div>
-          
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <label className="text-invoice-muted">Ship To</label>
-              <textarea
-                value={shipTo}
-                onChange={(e) => setShipTo(e.target.value)}
-                placeholder="(optional)"
-                rows={6}
-                className="invoice-input w-full"
-              />
-            </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-invoice-muted">Date</label>
+
+            <div className="flex items-center justify-end mb-2">
+              <span className="mr-2 text-gray-500">Date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="invoice-input w-40 justify-start text-left font-normal">
+                  <Button 
+                    variant="outline" 
+                    className="w-40 justify-start text-left border-gray-300"
+                  >
                     {invoiceDate ? format(invoiceDate, "MMM dd, yyyy") : "Select date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-invoice-input">
+                <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={invoiceDate}
@@ -198,26 +202,19 @@ const InvoiceForm: React.FC = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-invoice-muted">Payment Terms</label>
-              <input
-                type="text"
-                value={paymentTerms}
-                onChange={(e) => setPaymentTerms(e.target.value)}
-                className="invoice-input w-40"
-              />
-            </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <label className="text-invoice-muted">Due Date</label>
+
+            <div className="flex items-center justify-end">
+              <span className="mr-2 text-gray-500">Due Date</span>
               <Popover>
                 <PopoverTrigger asChild>
-                  <Button variant="outline" className="invoice-input w-40 justify-start text-left font-normal">
+                  <Button 
+                    variant="outline" 
+                    className="w-40 justify-start text-left border-gray-300"
+                  >
                     {dueDate ? format(dueDate, "MMM dd, yyyy") : "Select date"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-invoice-input">
+                <PopoverContent className="w-auto p-0">
                   <Calendar
                     mode="single"
                     selected={dueDate}
@@ -227,156 +224,197 @@ const InvoiceForm: React.FC = () => {
                 </PopoverContent>
               </Popover>
             </div>
-            
-            <div className="flex justify-between items-center">
-              <label className="text-invoice-muted">PO Number</label>
-              <input
-                type="text"
-                value={poNumber}
-                onChange={(e) => setPoNumber(e.target.value)}
-                className="invoice-input w-40"
-              />
-            </div>
           </div>
         </div>
-        
-        <div className="mb-8">
-          <div className="grid grid-cols-12 gap-4 mb-2 text-invoice-muted">
-            <div className="col-span-6">Item</div>
-            <div className="col-span-2 text-right">Quantity</div>
-            <div className="col-span-2 text-right">Rate</div>
-            <div className="col-span-2 text-right">Amount</div>
-          </div>
-          
-          {items.map((item) => (
-            <div key={item.id} className="grid grid-cols-12 gap-4 mb-2">
-              <div className="col-span-6">
-                <input
-                  type="text"
-                  value={item.description}
-                  onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
-                  className="invoice-input w-full"
-                />
-              </div>
-              <div className="col-span-2">
-                <input
-                  type="number"
-                  value={item.quantity}
-                  onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
-                  className="invoice-input w-full text-right"
-                />
-              </div>
-              <div className="col-span-2">
-                <div className="flex items-center justify-end">
-                  <span className="mr-1">€</span>
-                  <input
-                    type="number"
-                    value={item.rate}
-                    onChange={(e) => handleItemChange(item.id, "rate", Number(e.target.value))}
-                    className="invoice-input w-full text-right"
-                  />
-                </div>
-              </div>
-              <div className="col-span-2 text-right flex items-center justify-end">
-                €{item.amount.toFixed(2)}
-              </div>
-            </div>
-          ))}
-          
-          <button
-            onClick={handleAddItem}
-            className="flex items-center text-green-500 mt-4 hover:text-green-400 transition-colors border border-invoice-border rounded-md px-3 py-2"
-          >
-            <Plus size={16} className="mr-1" /> Line Item
-          </button>
-        </div>
-        
-        <div className="grid grid-cols-2 gap-8">
+
+        {/* Client Information */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
           <div>
-            <div className="mb-4">
-              <label className="block text-invoice-muted mb-1">Notes</label>
-              <textarea
+            <Label className="block text-sm font-medium text-gray-500 mb-2">Bill To</Label>
+            <Textarea
+              value={billTo}
+              onChange={(e) => setBillTo(e.target.value)}
+              className="h-32 border-gray-300"
+            />
+          </div>
+          
+          <div>
+            <Label className="block text-sm font-medium text-gray-500 mb-2">Ship To (Optional)</Label>
+            <Textarea
+              value={shipTo}
+              onChange={(e) => setShipTo(e.target.value)}
+              className="h-32 border-gray-300"
+              placeholder="Shipping address (if different from billing)"
+            />
+          </div>
+        </div>
+
+        {/* Additional Details */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-200">
+          <div>
+            <Label className="block text-sm font-medium text-gray-500 mb-2">Payment Terms</Label>
+            <Input
+              value={paymentTerms}
+              onChange={(e) => setPaymentTerms(e.target.value)}
+              className="border-gray-300"
+              placeholder="Net 30, Due on Receipt, etc."
+            />
+          </div>
+          <div>
+            <Label className="block text-sm font-medium text-gray-500 mb-2">PO Number</Label>
+            <Input
+              value={poNumber}
+              onChange={(e) => setPoNumber(e.target.value)}
+              className="border-gray-300"
+              placeholder="Purchase Order Number"
+            />
+          </div>
+        </div>
+
+        {/* Items Table */}
+        <Card className="border border-gray-200">
+          <CardContent className="p-0">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-purple-50">
+                  <th className="px-4 py-3 text-left text-sm font-medium text-gray-600">Item / Description</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-20">Quantity</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-32">Rate</th>
+                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-32">Amount</th>
+                  <th className="w-10"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {items.map((item) => (
+                  <tr key={item.id} className="hover:bg-gray-50">
+                    <td className="px-4 py-3">
+                      <Input
+                        type="text"
+                        value={item.description}
+                        onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
+                        className="border-gray-200"
+                        placeholder="Item description"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <Input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
+                        className="text-right border-gray-200"
+                        min="0"
+                      />
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-end">
+                        <span className="mr-1 text-gray-500">€</span>
+                        <Input
+                          type="number"
+                          value={item.rate}
+                          onChange={(e) => handleItemChange(item.id, "rate", Number(e.target.value))}
+                          className="text-right border-gray-200"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-right font-medium">€{item.amount.toFixed(2)}</td>
+                    <td className="px-4 py-3">
+                      {items.length > 1 && (
+                        <Button 
+                          variant="ghost" 
+                          size="icon" 
+                          onClick={() => handleRemoveItem(item.id)}
+                          className="h-8 w-8 text-gray-400 hover:text-red-500"
+                        >
+                          <X size={16} />
+                        </Button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+            
+            <div className="p-4 border-t border-gray-200">
+              <Button
+                onClick={handleAddItem}
+                variant="outline"
+                size="sm"
+                className="text-purple-600 border-purple-200 hover:bg-purple-50"
+              >
+                <Plus size={16} className="mr-1" /> Add Item
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Totals and Notes */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+          <div className="space-y-4">
+            <div>
+              <Label className="block text-sm font-medium text-gray-500 mb-2">Notes</Label>
+              <Textarea
                 value={notes}
                 onChange={(e) => setNotes(e.target.value)}
-                rows={4}
-                className="invoice-input w-full"
+                className="h-32 border-gray-300"
+                placeholder="Payment details, thank you message, etc."
               />
             </div>
-            
             <div>
-              <label className="block text-invoice-muted mb-1">Terms</label>
-              <textarea
+              <Label className="block text-sm font-medium text-gray-500 mb-2">Terms & Conditions</Label>
+              <Textarea
                 value={terms}
                 onChange={(e) => setTerms(e.target.value)}
-                rows={2}
-                className="invoice-input w-full"
+                className="h-20 border-gray-300"
+                placeholder="Standard terms and conditions"
               />
             </div>
           </div>
-          
+
           <div>
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-invoice-muted">Subtotal</span>
-              <span>€{subtotal.toFixed(2)}</span>
-            </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-invoice-muted">Tax</span>
-              <div className="flex items-center">
-                <input
-                  type="number"
-                  value={taxPercentage}
-                  onChange={(e) => setTaxPercentage(Number(e.target.value))}
-                  className="invoice-input w-20 text-right mr-2"
-                />
-                <span className="mr-2">%</span>
-                <button className="bg-invoice-input rounded-full p-1">
-                  <Check size={16} />
-                </button>
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <button className="flex items-center text-invoice-accent hover:text-blue-400 transition-colors">
-                <Plus size={16} className="mr-1" /> Discount
-              </button>
-              {discount > 0 && (
-                <span>€{discount.toFixed(2)}</span>
-              )}
-            </div>
-            
-            <div className="flex justify-between items-center mb-4">
-              <button className="flex items-center text-invoice-accent hover:text-blue-400 transition-colors">
-                <Plus size={16} className="mr-1" /> Shipping
-              </button>
-              {shipping > 0 && (
-                <span>€{shipping.toFixed(2)}</span>
-              )}
-            </div>
-            
-            <div className="flex justify-between items-center mb-2 font-bold">
-              <span>Total</span>
-              <span>€{total.toFixed(2)}</span>
-            </div>
-            
-            <div className="flex justify-between items-center mb-2">
-              <span className="text-invoice-muted">Amount Paid</span>
-              <div className="flex items-center">
-                <span className="mr-1">€</span>
-                <input
-                  type="number"
-                  value={amountPaid}
-                  onChange={(e) => setAmountPaid(Number(e.target.value))}
-                  className="invoice-input w-24 text-right"
-                />
-              </div>
-            </div>
-            
-            <div className="flex justify-between items-center">
-              <span className="text-invoice-muted">Balance Due</span>
-              <span>€{balanceDue.toFixed(2)}</span>
-            </div>
+            <Card className="border border-gray-200 overflow-hidden">
+              <table className="w-full">
+                <tbody>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-gray-600">Subtotal</td>
+                    <td className="px-4 py-3 text-right font-medium">€{subtotal.toFixed(2)}</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-gray-600">Total</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold">€{total.toFixed(2)}</td>
+                  </tr>
+                  <tr className="border-b border-gray-200">
+                    <td className="px-4 py-3 text-gray-600">Amount Paid</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex items-center justify-end">
+                        <span className="mr-1 text-gray-500">€</span>
+                        <Input
+                          type="number"
+                          value={amountPaid}
+                          onChange={(e) => setAmountPaid(Number(e.target.value))}
+                          className="w-24 text-right border-gray-300"
+                          min="0"
+                          step="0.01"
+                        />
+                      </div>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td className="px-4 py-3 font-medium text-purple-800">Balance Due</td>
+                    <td className="px-4 py-3 text-right text-lg font-bold text-purple-800">€{balanceDue.toFixed(2)}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </Card>
           </div>
+        </div>
+      </div>
+
+      {/* Footer */}
+      <div className="p-6 bg-gray-50 border-t border-gray-200 print:hidden">
+        <div className="text-center text-sm text-gray-500">
+          Thank you for your business!
         </div>
       </div>
     </div>
