@@ -5,7 +5,7 @@ import { Button } from "./ui/button";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Calendar } from "./ui/calendar";
 import { format, addDays } from "date-fns";
-import { Calendar as CalendarIcon, Printer, Save, Image, ChevronDown, Copy } from "lucide-react";
+import { Calendar as CalendarIcon, Printer, Save, Image, ChevronDown, Copy, Trash2, Settings } from "lucide-react";
 import { Card, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Textarea } from "./ui/textarea";
@@ -46,7 +46,7 @@ const defaultCompanyPresets: CompanyPreset[] = [
   {
     id: "1",
     name: "3DPRS",
-    details: "3DPRS\nkhaledreez22@gmail.com\nhttps://www.behance.net/3dprs",
+    details: "3DPRS\nkhaledreez22@gmail.com\nwww.behance.net/3dprs",
     logo: "/lovable-uploads/1993e3a5-e3c0-48f2-bfdc-ab95ade9cd82.png"
   }
 ];
@@ -82,11 +82,11 @@ const InvoiceForm: React.FC = () => {
   const [companyLogo, setCompanyLogo] = useState(defaultCompanyPresets[0].logo || "");
 
   // Invoice Details
-  const [invoiceNumber, setInvoiceNumber] = useState("38");
+  const [invoiceNumber, setInvoiceNumber] = useState("16");
   const [invoiceDate, setInvoiceDate] = useState<Date | undefined>(today);
   const [dueDate, setDueDate] = useState<Date | undefined>(addDays(today, 7));
   const [enableDueDate, setEnableDueDate] = useState(true);
-  const [currency, setCurrency] = useState("€");
+  const [currency, setCurrency] = useState("USD ($)");
 
   // Client Details
   const [billTo, setBillTo] = useState(defaultClientPresets[0].details);
@@ -95,7 +95,7 @@ const InvoiceForm: React.FC = () => {
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: "1",
-      description: "Erikssen Tower Fan Interior Renders",
+      description: "Dehumidifier Render",
       quantity: 4,
       rate: 25,
       amount: 100,
@@ -104,7 +104,7 @@ const InvoiceForm: React.FC = () => {
 
   // Payment Details
   const [paymentDetails, setPaymentDetails] = useState(
-    "Bank Transfer Details:\nFEROZE SHAHEEN\nBE92 9676 4363 9523"
+    "IBAN: BG76MYFN401210E1860019\nKhaled Güir"
   );
   const [noteText, setNoteText] = useState("Thank you for your business!");
 
@@ -266,32 +266,32 @@ const InvoiceForm: React.FC = () => {
               <div className="h-8 w-8 bg-blue-100"></div>
             )}
           </div>
-          <h1 className="text-xl font-bold">Invoice Generator</h1>
+          <h1 className="text-xl font-bold">3DPRS Invoice</h1>
         </div>
         <div className="flex space-x-2">
           <Button 
-            onClick={handleSaveInvoice}
-            variant="outline"
-            className="bg-white/10 hover:bg-white/20 text-white border-white/20"
+            variant="ghost" 
+            size="icon"
+            className="text-white"
           >
-            <Save size={18} className="mr-2" /> Save
+            <CalendarIcon className="h-5 w-5" />
           </Button>
           <Button 
-            onClick={handlePrint}
-            variant="outline" 
-            className="bg-white hover:bg-gray-100 text-blue-700"
+            variant="ghost" 
+            size="icon"
+            className="text-white"
           >
-            <Printer size={18} className="mr-2" /> Print
+            <Settings className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      <div className="p-6 space-y-6">
+      <div className="p-6 space-y-6 bg-gray-50">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Company Details Section */}
-          <Card className="border border-gray-200 shadow-sm">
-            <CardContent className="p-4">
-              <div className="flex justify-between items-center mb-3">
+          <Card className="border-0 shadow-sm overflow-hidden">
+            <CardContent className="p-0">
+              <div className="bg-white p-4 flex justify-between items-center border-b">
                 <Label className="text-base font-medium text-blue-600">Company Details</Label>
                 <div className="flex gap-1">
                   <DropdownMenu>
@@ -314,20 +314,12 @@ const InvoiceForm: React.FC = () => {
                     className="h-8"
                     onClick={saveCompanyPreset}
                   >
-                    <Copy size={14} className="mr-1" /> Save Preset
+                    Save Preset
                   </Button>
                 </div>
               </div>
-              <div className="flex items-center mb-3">
-                <div 
-                  className="bg-gray-100 h-16 w-16 p-2 rounded-md mr-4 flex items-center justify-center cursor-pointer relative overflow-hidden"
-                  onClick={triggerFileInput}
-                >
-                  {companyLogo ? (
-                    <img src={companyLogo} alt="Company Logo" className="w-full h-full object-contain" />
-                  ) : (
-                    <Image className="text-gray-400" />
-                  )}
+              <div className="p-4">
+                <div className="mb-3">
                   <input 
                     type="file" 
                     ref={fileInputRef}
@@ -335,35 +327,24 @@ const InvoiceForm: React.FC = () => {
                     accept="image/*" 
                     onChange={handleLogoUpload} 
                   />
-                  <div className="absolute inset-0 bg-black bg-opacity-0 hover:bg-opacity-20 transition-all flex items-center justify-center">
-                    <Image className="text-white opacity-0 hover:opacity-100" size={20} />
-                  </div>
                 </div>
-                <Button 
-                  type="button" 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={triggerFileInput}
-                  className="text-xs"
-                >
-                  Change Logo
-                </Button>
+                <Textarea
+                  value={companyDetails}
+                  onChange={(e) => setCompanyDetails(e.target.value)}
+                  className="resize-none min-h-[150px] text-sm border bg-gray-50"
+                  placeholder="Company name, email, website"
+                />
               </div>
-              <Textarea
-                value={companyDetails}
-                onChange={(e) => setCompanyDetails(e.target.value)}
-                className="resize-none min-h-[120px] text-sm"
-                placeholder="Company name, email, website"
-              />
             </CardContent>
           </Card>
 
           {/* Invoice Details Section */}
-          <Card className="border border-gray-200 shadow-sm">
-            <CardContent className="p-4">
-              <Label className="text-base font-medium text-blue-600 mb-3 block">Invoice Details</Label>
-              
-              <div className="space-y-4">
+          <Card className="border-0 shadow-sm overflow-hidden">
+            <CardContent className="p-0">
+              <div className="bg-white p-4 border-b">
+                <Label className="text-base font-medium text-blue-600">Invoice Details</Label>
+              </div>
+              <div className="bg-white p-4 space-y-4">
                 <div>
                   <div className="flex items-center justify-between mb-1">
                     <Label htmlFor="invoice-number" className="text-sm">Invoice Number</Label>
@@ -389,9 +370,9 @@ const InvoiceForm: React.FC = () => {
                     onChange={(e) => setCurrency(e.target.value)}
                     className="w-full h-10 bg-gray-50 border border-gray-200 rounded-md px-3 py-2 text-sm"
                   >
-                    <option value="€">EUR (€)</option>
-                    <option value="$">USD ($)</option>
-                    <option value="£">GBP (£)</option>
+                    <option value="USD ($)">USD ($)</option>
+                    <option value="EUR (€)">EUR (€)</option>
+                    <option value="GBP (£)">GBP (£)</option>
                   </select>
                 </div>
                 
@@ -428,14 +409,6 @@ const InvoiceForm: React.FC = () => {
                         />
                       </PopoverContent>
                     </Popover>
-                    <Button
-                      onClick={setTodayDate}
-                      variant="outline"
-                      size="sm"
-                      className="text-xs"
-                    >
-                      Today
-                    </Button>
                   </div>
                 </div>
                 
@@ -470,9 +443,9 @@ const InvoiceForm: React.FC = () => {
         </div>
 
         {/* Client Information */}
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
+        <Card className="border-0 shadow-sm overflow-hidden">
+          <CardContent className="p-0">
+            <div className="bg-white p-4 flex justify-between items-center border-b">
               <Label className="text-base font-medium text-blue-600">Bill To</Label>
               <div className="flex gap-1">
                 <DropdownMenu>
@@ -495,120 +468,127 @@ const InvoiceForm: React.FC = () => {
                   className="h-8"
                   onClick={saveClientPreset}
                 >
-                  <Copy size={14} className="mr-1" /> Save Preset
+                  Save Preset
                 </Button>
               </div>
             </div>
-            <Textarea
-              value={billTo}
-              onChange={(e) => setBillTo(e.target.value)}
-              className="resize-none min-h-[120px] text-sm"
-              placeholder="Client details"
-            />
+            <div className="p-4">
+              <Textarea
+                value={billTo}
+                onChange={(e) => setBillTo(e.target.value)}
+                className="resize-none min-h-[150px] text-sm border bg-gray-50"
+                placeholder="Client details"
+              />
+            </div>
           </CardContent>
         </Card>
 
         {/* Items Table */}
-        <Card className="border border-gray-200 shadow-sm">
+        <Card className="border-0 shadow-sm overflow-hidden">
           <CardContent className="p-0">
-            <div className="p-4 border-b border-gray-200">
+            <div className="p-4 bg-white border-b">
               <Label className="text-base font-medium text-blue-600">Invoice Items</Label>
             </div>
-            <table className="w-full">
-              <thead>
-                <tr className="bg-gray-50 text-left border-b border-gray-200">
-                  <th className="px-4 py-3 text-sm font-medium text-gray-600">Description</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-24">Quantity</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-32">Rate</th>
-                  <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-32">Amount</th>
-                  <th className="w-16 px-4 py-3 text-sm font-medium text-gray-600">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {items.map((item) => (
-                  <tr key={item.id} className="hover:bg-gray-50">
-                    <td className="px-4 py-3">
-                      <Input
-                        type="text"
-                        value={item.description}
-                        onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
-                        className="border-gray-200 text-sm"
-                        placeholder="Item description"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <Input
-                        type="number"
-                        value={item.quantity}
-                        onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
-                        className="text-right border-gray-200 text-sm"
-                        min="0"
-                      />
-                    </td>
-                    <td className="px-4 py-3">
-                      <div className="flex items-center justify-end">
-                        <span className="mr-1 text-gray-500">{currency}</span>
+            <div className="bg-white">
+              <table className="w-full">
+                <thead>
+                  <tr className="text-left border-b border-gray-200">
+                    <th className="px-4 py-3 text-sm font-medium text-gray-600">Description</th>
+                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 w-24">Quantity</th>
+                    <th className="px-4 py-3 text-center text-sm font-medium text-gray-600 w-24">Rate</th>
+                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-600 w-32">Amount</th>
+                    <th className="w-16 px-4 py-3 text-sm font-medium text-gray-600 text-center">Action</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {items.map((item) => (
+                    <tr key={item.id} className="hover:bg-gray-50">
+                      <td className="px-4 py-3">
+                        <Input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => handleItemChange(item.id, "description", e.target.value)}
+                          className="border-gray-200 text-sm"
+                          placeholder="Item description"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
+                        <Input
+                          type="number"
+                          value={item.quantity}
+                          onChange={(e) => handleItemChange(item.id, "quantity", Number(e.target.value))}
+                          className="text-center border-gray-200 text-sm"
+                          min="0"
+                        />
+                      </td>
+                      <td className="px-4 py-3">
                         <Input
                           type="number"
                           value={item.rate}
                           onChange={(e) => handleItemChange(item.id, "rate", Number(e.target.value))}
-                          className="text-right border-gray-200 text-sm"
+                          className="text-center border-gray-200 text-sm"
                           min="0"
                           step="0.01"
                         />
-                      </div>
-                    </td>
-                    <td className="px-4 py-3 text-right font-medium text-sm">{currency}{item.amount.toFixed(2)}</td>
-                    <td className="px-4 py-3 text-center">
-                      {items.length > 1 && (
-                        <Button 
-                          variant="ghost" 
-                          size="icon" 
-                          onClick={() => handleRemoveItem(item.id)}
-                          className="h-8 w-8 text-gray-400 hover:text-red-500"
-                        >
-                          X
-                        </Button>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-            
-            <div className="p-4 border-t border-gray-200">
-              <Button
-                onClick={handleAddItem}
-                variant="outline"
-                size="sm"
-                className="text-blue-600 border-blue-200 hover:bg-blue-50 text-sm"
-              >
-                + Add Item
-              </Button>
-            </div>
-            
-            <div className="border-t border-gray-200">
-              <div className="py-3 px-4 flex items-center justify-between text-sm">
-                <span className="font-medium">Total:</span>
-                <span className="font-bold text-lg">{currency}{total.toFixed(2)}</span>
-              </div>
-              <div className="bg-gray-50 p-3 rounded-b-lg">
+                      </td>
+                      <td className="px-4 py-3 text-right font-medium text-sm">
+                        ${item.amount.toFixed(2)}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        {items.length > 1 && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={() => handleRemoveItem(item.id)}
+                            className="h-8 w-8 text-gray-400 hover:text-red-500"
+                          >
+                            <Trash2 className="h-4 w-4 text-red-500" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+              
+              <div className="p-4">
                 <Button
+                  onClick={handleAddItem}
                   variant="outline"
                   size="sm"
-                  className="text-gray-600 text-xs border-gray-300"
+                  className="text-blue-600 border-blue-200 hover:bg-blue-50 text-sm"
                 >
-                  Split Payment
+                  + Add Item
                 </Button>
+              </div>
+              
+              <div className="border-t border-gray-200 bg-white">
+                <div className="flex justify-between p-4">
+                  <div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-gray-600 text-xs border-gray-300"
+                    >
+                      Split Payment
+                    </Button>
+                  </div>
+                  <div className="text-right">
+                    <div className="mb-2">
+                      <span className="font-medium">Total:</span>
+                      <span className="font-bold text-lg ml-2">${total.toFixed(2)}</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </CardContent>
         </Card>
 
         {/* Payment Details */}
-        <Card className="border border-gray-200 shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
+        <Card className="border-0 shadow-sm overflow-hidden">
+          <CardContent className="p-0">
+            <div className="bg-white p-4 flex justify-between items-center border-b">
               <Label className="text-base font-medium text-blue-600">Payment Details</Label>
               <div className="flex gap-1">
                 <DropdownMenu>
@@ -631,17 +611,17 @@ const InvoiceForm: React.FC = () => {
                   className="h-8"
                   onClick={savePaymentPreset}
                 >
-                  <Copy size={14} className="mr-1" /> Save Preset
+                  Save Preset
                 </Button>
               </div>
             </div>
-            <div className="space-y-4">
+            <div className="p-4 bg-white space-y-4">
               <div>
                 <Label className="text-sm mb-1 block">Instructions</Label>
                 <Textarea
                   value={paymentDetails}
                   onChange={(e) => setPaymentDetails(e.target.value)}
-                  className="resize-none min-h-[80px] text-sm"
+                  className="resize-none min-h-[80px] text-sm border bg-gray-50"
                   placeholder="Bank account details, payment instructions, etc."
                 />
               </div>
@@ -651,7 +631,7 @@ const InvoiceForm: React.FC = () => {
                 <Textarea
                   value={noteText}
                   onChange={(e) => setNoteText(e.target.value)}
-                  className="resize-none min-h-[80px] text-sm"
+                  className="resize-none min-h-[80px] text-sm border bg-gray-50"
                   placeholder="Thank you note or additional information"
                 />
               </div>
