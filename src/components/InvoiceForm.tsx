@@ -342,6 +342,78 @@ const InvoiceForm: React.FC = () => {
     });
   };
 
+  // Add delete preset functionality
+  const deleteCompanyPreset = (presetId: string) => {
+    setCompanyPresets(companyPresets.filter(preset => preset.id !== presetId));
+    toast({
+      title: "Company Preset Deleted",
+      description: "The company preset has been deleted.",
+    });
+  };
+
+  const deleteClientPreset = (presetId: string) => {
+    setClientPresets(clientPresets.filter(preset => preset.id !== presetId));
+    toast({
+      title: "Client Preset Deleted",
+      description: "The client preset has been deleted.",
+    });
+  };
+
+  const deletePaymentPreset = (presetId: string) => {
+    setPaymentPresets(paymentPresets.filter(preset => preset.id !== presetId));
+    toast({
+      title: "Payment Preset Deleted",
+      description: "The payment preset has been deleted.",
+    });
+  };
+
+  // Logo display component for direct image upload
+  const LogoDisplay = () => {
+    if (companyLogo) {
+      return (
+        <div className="relative w-full h-20 mb-3 border border-dashed border-gray-300 rounded-md bg-gray-50 flex justify-center items-center overflow-hidden group">
+          <img 
+            src={companyLogo} 
+            alt="Company Logo" 
+            className="h-full w-auto object-contain"
+          />
+          <div className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              onClick={triggerFileInput}
+              className="text-white"
+            >
+              <Image className="h-4 w-4 mr-2" />
+              Change Logo
+            </Button>
+          </div>
+        </div>
+      );
+    }
+    
+    return (
+      <div className="mb-3">
+        <input 
+          type="file" 
+          ref={fileInputRef}
+          className="hidden" 
+          accept="image/*" 
+          onChange={handleLogoUpload} 
+        />
+        <Button 
+          variant="outline" 
+          size="sm" 
+          onClick={triggerFileInput}
+          className="w-full justify-center border-dashed border-gray-300 bg-gray-50"
+        >
+          <Image className="h-4 w-4 mr-2" />
+          Upload Logo
+        </Button>
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden print:shadow-none">
       {/* Header with logo and title */}
@@ -378,7 +450,7 @@ const InvoiceForm: React.FC = () => {
         {/* Grid layout with 2 rows of 2 cards each */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Company Details Section */}
-          <Card className="border-0 shadow-sm overflow-hidden">
+          <Card className="border-0 shadow-sm overflow-hidden h-auto">
             <CardContent className="p-0">
               <div className="bg-white p-4 flex justify-between items-center border-b">
                 <Label className="text-base font-medium text-blue-600">Company Details</Label>
@@ -391,8 +463,19 @@ const InvoiceForm: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {companyPresets.map(preset => (
-                        <DropdownMenuItem key={preset.id} onClick={() => loadCompanyPreset(preset)}>
-                          {preset.name}
+                        <DropdownMenuItem key={preset.id} className="flex items-center justify-between">
+                          <span onClick={() => loadCompanyPreset(preset)}>{preset.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteCompanyPreset(preset.id);
+                            }}
+                            className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -408,24 +491,7 @@ const InvoiceForm: React.FC = () => {
                 </div>
               </div>
               <div className="p-4">
-                <div className="mb-3">
-                  <input 
-                    type="file" 
-                    ref={fileInputRef}
-                    className="hidden" 
-                    accept="image/*" 
-                    onChange={handleLogoUpload} 
-                  />
-                  <Button 
-                    variant="outline" 
-                    size="sm" 
-                    onClick={triggerFileInput}
-                    className="w-full justify-center border-dashed border-gray-300 bg-gray-50"
-                  >
-                    <Image className="h-4 w-4 mr-2" />
-                    Upload Logo
-                  </Button>
-                </div>
+                <LogoDisplay />
                 <Textarea
                   value={companyDetails}
                   onChange={(e) => setCompanyDetails(e.target.value)}
@@ -437,7 +503,7 @@ const InvoiceForm: React.FC = () => {
           </Card>
 
           {/* Invoice Details Section */}
-          <Card className="border-0 shadow-sm overflow-hidden">
+          <Card className="border-0 shadow-sm overflow-hidden h-auto">
             <CardContent className="p-0">
               <div className="bg-white p-4 border-b">
                 <Label className="text-base font-medium text-blue-600">Invoice Details</Label>
@@ -482,7 +548,8 @@ const InvoiceForm: React.FC = () => {
                       <Switch 
                         id="due-date-toggle" 
                         checked={enableDueDate} 
-                        onCheckedChange={setEnableDueDate} 
+                        onCheckedChange={setEnableDueDate}
+                        className={enableDueDate ? "bg-blue-600" : ""}
                       />
                     </div>
                   </div>
@@ -540,7 +607,7 @@ const InvoiceForm: React.FC = () => {
           </Card>
 
           {/* Client Information */}
-          <Card className="border-0 shadow-sm overflow-hidden">
+          <Card className="border-0 shadow-sm overflow-hidden h-auto">
             <CardContent className="p-0">
               <div className="bg-white p-4 flex justify-between items-center border-b">
                 <Label className="text-base font-medium text-blue-600">Bill To</Label>
@@ -553,8 +620,19 @@ const InvoiceForm: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {clientPresets.map(preset => (
-                        <DropdownMenuItem key={preset.id} onClick={() => loadClientPreset(preset)}>
-                          {preset.name}
+                        <DropdownMenuItem key={preset.id} className="flex items-center justify-between">
+                          <span onClick={() => loadClientPreset(preset)}>{preset.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteClientPreset(preset.id);
+                            }}
+                            className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
@@ -581,7 +659,7 @@ const InvoiceForm: React.FC = () => {
           </Card>
 
           {/* Payment Details - Moved to be after invoice details */}
-          <Card className="border-0 shadow-sm overflow-hidden">
+          <Card className="border-0 shadow-sm overflow-hidden h-auto">
             <CardContent className="p-0">
               <div className="bg-white p-4 flex justify-between items-center border-b">
                 <Label className="text-base font-medium text-blue-600">Payment Details</Label>
@@ -594,8 +672,19 @@ const InvoiceForm: React.FC = () => {
                     </DropdownMenuTrigger>
                     <DropdownMenuContent>
                       {paymentPresets.map(preset => (
-                        <DropdownMenuItem key={preset.id} onClick={() => loadPaymentPreset(preset)}>
-                          {preset.name}
+                        <DropdownMenuItem key={preset.id} className="flex items-center justify-between">
+                          <span onClick={() => loadPaymentPreset(preset)}>{preset.name}</span>
+                          <Button 
+                            variant="ghost" 
+                            size="icon" 
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deletePaymentPreset(preset.id);
+                            }}
+                            className="h-7 w-7 text-red-500 hover:text-red-700 hover:bg-red-50"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         </DropdownMenuItem>
                       ))}
                     </DropdownMenuContent>
