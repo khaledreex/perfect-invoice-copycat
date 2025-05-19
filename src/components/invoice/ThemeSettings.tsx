@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import { ColorPicker, Moon, Palette, Sun } from "lucide-react";
+import { Palette, Moon, Sun } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 
 interface ThemeSettingsProps {
@@ -163,7 +163,7 @@ const ThemeSettings: React.FC<ThemeSettingsProps> = ({
             </div>
             
             <Button onClick={updateAccentColor} className="w-full mt-4 invoice-accent-bg invoice-accent-hover">
-              <ColorPicker className="mr-2 h-4 w-4" />
+              <Palette className="mr-2 h-4 w-4" />
               Apply Color
             </Button>
           </div>
