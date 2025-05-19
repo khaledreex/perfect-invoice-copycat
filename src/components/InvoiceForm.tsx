@@ -1,15 +1,16 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { Button } from "./ui/button";
 import { format, addDays } from "date-fns";
-import { CalendarIcon, Printer, Save, Settings } from "lucide-react";
+import { Moon, Printer, Save, Settings, Sun } from "lucide-react";
 import CompanyDetails from "./invoice/CompanyDetails";
 import InvoiceDetails from "./invoice/InvoiceDetails";
 import ClientDetails from "./invoice/ClientDetails";
 import PaymentDetails from "./invoice/PaymentDetails";
 import InvoiceItems from "./invoice/InvoiceItems";
 import PresetDialog from "./invoice/PresetDialog";
+import ThemeSettings from "./invoice/ThemeSettings";
 import { CompanyPreset, ClientPreset, PaymentPreset, InvoiceItem } from "./invoice/types";
 
 // Default presets
@@ -41,6 +42,28 @@ const defaultPaymentPresets: PaymentPreset[] = [
 const InvoiceForm: React.FC = () => {
   const { toast } = useToast();
   const today = new Date();
+  
+  // Theme state
+  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [accentColor, setAccentColor] = useState("210 100% 50%");
+
+  // Apply theme on mount and when changed
+  useEffect(() => {
+    // Set dark mode class
+    if (isDarkMode) {
+      document.documentElement.classList.add('dark');
+    } else {
+      document.documentElement.classList.remove('dark');
+    }
+    
+    // Set accent color
+    document.documentElement.style.setProperty('--invoice-accent', accentColor);
+  }, [isDarkMode, accentColor]);
+  
+  // Toggle dark mode
+  const toggleDarkMode = () => {
+    setIsDarkMode(!isDarkMode);
+  };
   
   // Presets
   const [companyPresets, setCompanyPresets] = useState<CompanyPreset[]>(defaultCompanyPresets);
@@ -312,9 +335,9 @@ const InvoiceForm: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto bg-white rounded-lg shadow-lg overflow-hidden print:shadow-none">
+    <div className={`max-w-6xl mx-auto bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow-lg overflow-hidden print:shadow-none transition-colors`}>
       {/* Header with logo and title */}
-      <div className="p-4 bg-blue-600 text-white flex items-center justify-between print:hidden">
+      <div className="p-4 invoice-accent-bg text-white flex items-center justify-between print:hidden">
         <div className="flex items-center gap-3">
           <div className="bg-white rounded p-1 flex items-center justify-center">
             {companyLogo ? (
@@ -326,24 +349,27 @@ const InvoiceForm: React.FC = () => {
           <h1 className="text-xl font-bold">3DPRS Invoice</h1>
         </div>
         <div className="flex space-x-2">
+          {/* Theme Settings */}
+          <ThemeSettings 
+            isDarkMode={isDarkMode}
+            toggleDarkMode={toggleDarkMode}
+            accentColor={accentColor}
+            setAccentColor={setAccentColor}
+          />
+          
+          {/* Print Button */}
           <Button 
             variant="ghost" 
             size="icon"
             className="text-white"
+            onClick={handlePrint}
           >
-            <CalendarIcon className="h-5 w-5" />
-          </Button>
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-white"
-          >
-            <Settings className="h-5 w-5" />
+            <Printer className="h-5 w-5" />
           </Button>
         </div>
       </div>
 
-      <div className="p-6 space-y-6 bg-gray-50">
+      <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900">
         {/* Grid layout with 2 rows of 2 cards each */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Company Details Section */}
@@ -407,11 +433,10 @@ const InvoiceForm: React.FC = () => {
       </div>
 
       {/* Footer with save button */}
-      <div className="p-6 bg-gray-50 border-t border-gray-200 flex justify-end print:hidden">
+      <div className="p-6 bg-gray-50 dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 flex justify-end print:hidden">
         <Button 
           onClick={handleSaveInvoice}
-          variant="default"
-          className="bg-blue-600 hover:bg-blue-700 text-white"
+          className="invoice-accent-bg invoice-accent-hover text-white"
         >
           <Save size={18} className="mr-2" /> Save Invoice
         </Button>

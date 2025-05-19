@@ -57,7 +57,7 @@ export default {
 					background: '#1A1F24',
 					text: '#FFFFFF',
 					muted: '#8E9196',
-					accent: '#2563EB',
+					accent: 'hsl(var(--invoice-accent))',
 					input: '#2A2F36',
 					border: '#3A3F46'
 				},
