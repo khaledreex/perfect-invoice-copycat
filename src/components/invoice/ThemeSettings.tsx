@@ -54,7 +54,7 @@ const ThemeSettings: React.FC<ThemeSettingsProps> = ({
   return (
     <Sheet>
       <SheetTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-white">
+        <Button variant="ghost" size="icon">
           <Palette className="h-5 w-5" />
         </Button>
       </SheetTrigger>

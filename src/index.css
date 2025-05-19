@@ -115,3 +115,25 @@
 .invoice-accent-hover:hover {
   background-color: hsl(var(--invoice-accent) / 0.9);
 }
+
+/* Accent color for section titles */
+.card-title {
+  color: hsl(var(--invoice-accent));
+  font-weight: 600;
+}
+
+/* Ensure accent colors apply to all specified elements */
+.card-header h3,
+.section-title {
+  color: hsl(var(--invoice-accent));
+}
+
+/* Apply to specific sections */
+.company-details-title,
+.invoice-details-title,
+.bill-to-title,
+.payment-details-title,
+.invoice-items-title,
+.invoice-total {
+  color: hsl(var(--invoice-accent));
+}

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { useToast } from "../hooks/use-toast";
 import { Button } from "./ui/button";
@@ -12,6 +11,7 @@ import InvoiceItems from "./invoice/InvoiceItems";
 import PresetDialog from "./invoice/PresetDialog";
 import ThemeSettings from "./invoice/ThemeSettings";
 import { CompanyPreset, ClientPreset, PaymentPreset, InvoiceItem } from "./invoice/types";
+import { Toggle } from "./ui/toggle";
 
 // Default presets
 const defaultCompanyPresets: CompanyPreset[] = [
@@ -164,7 +164,7 @@ const InvoiceForm: React.FC = () => {
     });
   };
 
-  // Preset handling functions with name support
+  // Preset handling functions
   const saveCompanyPreset = () => {
     if (!newCompanyPresetName.trim()) {
       toast({
@@ -336,40 +336,42 @@ const InvoiceForm: React.FC = () => {
 
   return (
     <div className={`max-w-6xl mx-auto bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow-lg overflow-hidden print:shadow-none transition-colors`}>
-      {/* Header with logo and title */}
-      <div className="p-4 invoice-accent-bg text-white flex items-center justify-between print:hidden">
-        <div className="flex items-center gap-3">
-          <div className="bg-white rounded p-1 flex items-center justify-center">
-            {companyLogo ? (
-              <img src={companyLogo} alt="Company Logo" className="h-8 w-auto object-contain" />
-            ) : (
-              <div className="h-8 w-8 bg-blue-100"></div>
-            )}
-          </div>
-          <h1 className="text-xl font-bold">3DPRS Invoice</h1>
-        </div>
-        <div className="flex space-x-2">
-          {/* Theme Settings */}
-          <ThemeSettings 
-            isDarkMode={isDarkMode}
-            toggleDarkMode={toggleDarkMode}
-            accentColor={accentColor}
-            setAccentColor={setAccentColor}
-          />
-          
-          {/* Print Button */}
-          <Button 
-            variant="ghost" 
-            size="icon"
-            className="text-white"
-            onClick={handlePrint}
-          >
-            <Printer className="h-5 w-5" />
-          </Button>
-        </div>
+      {/* Simple floating action buttons in top right */}
+      <div className="absolute top-4 right-4 flex items-center space-x-2 print:hidden z-10">
+        {/* Dark mode toggle */}
+        <Toggle 
+          pressed={isDarkMode}
+          onPressedChange={toggleDarkMode}
+          className="bg-white/10 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm"
+          aria-label="Toggle dark mode"
+        >
+          {isDarkMode ? (
+            <Moon className="h-5 w-5" />
+          ) : (
+            <Sun className="h-5 w-5" />
+          )}
+        </Toggle>
+        
+        {/* Theme Settings */}
+        <ThemeSettings 
+          isDarkMode={isDarkMode}
+          toggleDarkMode={toggleDarkMode}
+          accentColor={accentColor}
+          setAccentColor={setAccentColor}
+        />
+        
+        {/* Print Button */}
+        <Button 
+          variant="outline" 
+          size="icon"
+          onClick={handlePrint}
+          className="bg-white/10 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm"
+        >
+          <Printer className="h-5 w-5" />
+        </Button>
       </div>
 
-      <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900">
+      <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 pt-14">
         {/* Grid layout with 2 rows of 2 cards each */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Company Details Section */}
