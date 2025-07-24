@@ -147,7 +147,6 @@ const CompanyDetails: React.FC<CompanyDetailsProps> = ({
           </div>
         </div>
         <div className="p-4">
-          <LogoDisplay />
           <Textarea
             value={companyDetails}
             onChange={(e) => setCompanyDetails(e.target.value)}

@@ -420,15 +420,17 @@ const InvoiceForm: React.FC = () => {
           />
         </div>
 
-        {/* Items Table */}
-        <InvoiceItems 
-          items={items}
-          handleAddItem={handleAddItem}
-          handleRemoveItem={handleRemoveItem}
-          handleItemChange={handleItemChange}
-          subtotal={subtotal}
-          total={total}
-        />
+        {/* Items Table - spans only first 2 columns */}
+        <div className="lg:col-span-2">
+          <InvoiceItems 
+            items={items}
+            handleAddItem={handleAddItem}
+            handleRemoveItem={handleRemoveItem}
+            handleItemChange={handleItemChange}
+            subtotal={subtotal}
+            total={total}
+          />
+        </div>
       </div>
 
       {/* Footer with save button */}
