@@ -6,7 +6,6 @@ import { Moon, Printer, Save, Settings, Sun } from "lucide-react";
 import CompanyDetails from "./invoice/CompanyDetails";
 import InvoiceDetails from "./invoice/InvoiceDetails";
 import ClientDetails from "./invoice/ClientDetails";
-import PaymentDetails from "./invoice/PaymentDetails";
 import InvoiceItems from "./invoice/InvoiceItems";
 import PresetDialog from "./invoice/PresetDialog";
 import ThemeSettings from "./invoice/ThemeSettings";
@@ -398,7 +397,7 @@ const InvoiceForm: React.FC = () => {
             openSavePresetDialog={() => setIsSaveClientOpen(true)}
           />
 
-          {/* Invoice Details Section */}
+          {/* Invoice Details Section (now includes Payment Details) */}
           <InvoiceDetails 
             invoiceNumber={invoiceNumber}
             setInvoiceNumber={setInvoiceNumber}
@@ -410,20 +409,16 @@ const InvoiceForm: React.FC = () => {
             setEnableDueDate={setEnableDueDate}
             currency={currency}
             setCurrency={setCurrency}
+            paymentDetails={paymentDetails}
+            setPaymentDetails={setPaymentDetails}
+            noteText={noteText}
+            setNoteText={setNoteText}
+            paymentPresets={paymentPresets}
+            deletePaymentPreset={deletePaymentPreset}
+            loadPaymentPreset={loadPaymentPreset}
+            openSavePresetDialog={() => setIsSavePaymentOpen(true)}
           />
         </div>
-
-        {/* Payment Details - Full width */}
-        <PaymentDetails 
-          paymentDetails={paymentDetails}
-          setPaymentDetails={setPaymentDetails}
-          noteText={noteText}
-          setNoteText={setNoteText}
-          paymentPresets={paymentPresets}
-          deletePaymentPreset={deletePaymentPreset}
-          loadPaymentPreset={loadPaymentPreset}
-          openSavePresetDialog={() => setIsSavePaymentOpen(true)}
-        />
 
         {/* Items Table */}
         <InvoiceItems 
