@@ -336,44 +336,46 @@ const InvoiceForm: React.FC = () => {
 
   return (
     <div className={`max-w-6xl mx-auto bg-white dark:bg-gray-800 dark:text-white rounded-lg shadow-lg overflow-hidden print:shadow-none transition-colors`}>
-      {/* Simple floating action buttons in top right */}
-      <div className="absolute top-4 right-4 flex items-center space-x-2 print:hidden z-10">
-        {/* Dark mode toggle */}
-        <Toggle 
-          pressed={isDarkMode}
-          onPressedChange={toggleDarkMode}
-          className="bg-white/10 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm"
-          aria-label="Toggle dark mode"
-        >
-          {isDarkMode ? (
-            <Moon className="h-5 w-5" />
-          ) : (
-            <Sun className="h-5 w-5" />
-          )}
-        </Toggle>
-        
-        {/* Theme Settings */}
-        <ThemeSettings 
-          isDarkMode={isDarkMode}
-          toggleDarkMode={toggleDarkMode}
-          accentColor={accentColor}
-          setAccentColor={setAccentColor}
-        />
-        
-        {/* Print Button */}
-        <Button 
-          variant="outline" 
-          size="icon"
-          onClick={handlePrint}
-          className="bg-white/10 backdrop-blur-sm border border-gray-200 dark:border-gray-700 shadow-sm"
-        >
-          <Printer className="h-5 w-5" />
-        </Button>
+      {/* Header with logo and title */}
+      <div className="p-4 invoice-accent-bg text-white flex items-center justify-between print:hidden">
+        <div className="flex items-center gap-3">
+          <div className="bg-white rounded p-1 flex items-center justify-center">
+            {companyLogo ? (
+              <img src={companyLogo} alt="Company Logo" className="h-8 w-auto object-contain" />
+            ) : (
+              <div className="h-8 w-8 bg-blue-100"></div>
+            )}
+          </div>
+          <h1 className="text-xl font-bold">3DPRS Invoice</h1>
+        </div>
+        <div className="flex space-x-2">
+          {/* Dark mode toggle */}
+          <Toggle 
+            pressed={isDarkMode}
+            onPressedChange={toggleDarkMode}
+            className="text-white hover:bg-white/20"
+            aria-label="Toggle dark mode"
+          >
+            {isDarkMode ? (
+              <Moon className="h-5 w-5" />
+            ) : (
+              <Sun className="h-5 w-5" />
+            )}
+          </Toggle>
+          
+          {/* Theme Settings */}
+          <ThemeSettings 
+            isDarkMode={isDarkMode}
+            toggleDarkMode={toggleDarkMode}
+            accentColor={accentColor}
+            setAccentColor={setAccentColor}
+          />
+        </div>
       </div>
 
-      <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900 pt-14">
-        {/* Grid layout with 2 rows of 2 cards each */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="p-6 space-y-6 bg-gray-50 dark:bg-gray-900">
+        {/* Top row: Company Details, Bill To, Invoice Details */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Company Details Section */}
           <CompanyDetails 
             companyDetails={companyDetails}
@@ -384,6 +386,16 @@ const InvoiceForm: React.FC = () => {
             deleteCompanyPreset={deleteCompanyPreset}
             loadCompanyPreset={loadCompanyPreset}
             openSavePresetDialog={() => setIsSaveCompanyOpen(true)}
+          />
+
+          {/* Client Information */}
+          <ClientDetails 
+            billTo={billTo}
+            setBillTo={setBillTo}
+            clientPresets={clientPresets}
+            deleteClientPreset={deleteClientPreset}
+            loadClientPreset={loadClientPreset}
+            openSavePresetDialog={() => setIsSaveClientOpen(true)}
           />
 
           {/* Invoice Details Section */}
@@ -399,29 +411,19 @@ const InvoiceForm: React.FC = () => {
             currency={currency}
             setCurrency={setCurrency}
           />
-
-          {/* Client Information */}
-          <ClientDetails 
-            billTo={billTo}
-            setBillTo={setBillTo}
-            clientPresets={clientPresets}
-            deleteClientPreset={deleteClientPreset}
-            loadClientPreset={loadClientPreset}
-            openSavePresetDialog={() => setIsSaveClientOpen(true)}
-          />
-
-          {/* Payment Details */}
-          <PaymentDetails 
-            paymentDetails={paymentDetails}
-            setPaymentDetails={setPaymentDetails}
-            noteText={noteText}
-            setNoteText={setNoteText}
-            paymentPresets={paymentPresets}
-            deletePaymentPreset={deletePaymentPreset}
-            loadPaymentPreset={loadPaymentPreset}
-            openSavePresetDialog={() => setIsSavePaymentOpen(true)}
-          />
         </div>
+
+        {/* Payment Details - Full width */}
+        <PaymentDetails 
+          paymentDetails={paymentDetails}
+          setPaymentDetails={setPaymentDetails}
+          noteText={noteText}
+          setNoteText={setNoteText}
+          paymentPresets={paymentPresets}
+          deletePaymentPreset={deletePaymentPreset}
+          loadPaymentPreset={loadPaymentPreset}
+          openSavePresetDialog={() => setIsSavePaymentOpen(true)}
+        />
 
         {/* Items Table */}
         <InvoiceItems 
